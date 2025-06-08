@@ -1,0 +1,5 @@
+/static/
+/html/
+/venv/
+/.vscode/
+/.mypy_cache/
