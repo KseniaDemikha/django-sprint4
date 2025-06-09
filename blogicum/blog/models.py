@@ -1,9 +1,6 @@
-from datetime import datetime
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db import models
-from django.urls import reverse
 from django.utils import timezone
 
 
@@ -100,7 +97,12 @@ class Post(BaseModel):
         verbose_name='Категория',
         related_name='posts'
     )
-    image = models.ImageField('Фото', upload_to='posts_images', blank=True)
+    image = models.ImageField(
+        'Фото',
+        upload_to='posts_images',
+        blank=True,
+        null=True
+    )
 
     class Meta:
         verbose_name = 'публикация'
@@ -143,6 +145,3 @@ class Comment(models.Model):
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ['created_at']
-
-    def get_absolute_url(self):
-        return reverse('blog:post_detail', kwargs={'pk': self.pk})
