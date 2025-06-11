@@ -3,8 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
-
-from .constants import MAX_LENGTH_CHAR_FIELD
+from .constants import MAX_LENGTH_POST, MAX_LENGTH_PROFILE
 
 
 User = get_user_model()
@@ -31,7 +30,7 @@ class BaseModel(models.Model):
 class Category(BaseModel):
     """Модель описывающая категории постов в блоге."""
 
-    title = models.CharField('Заголовок', max_length=MAX_LENGTH_CHAR_FIELD)
+    title = models.CharField('Заголовок', max_length=MAX_LENGTH_POST)
     description = models.TextField('Описание', default='Описание')
     slug = models.SlugField(
         'Идентификатор',
@@ -53,7 +52,7 @@ class Category(BaseModel):
 class Location(BaseModel):
     """Модель для записи локаций постов в блоге."""
 
-    name = models.CharField('Название места', max_length=MAX_LENGTH_CHAR_FIELD)
+    name = models.CharField('Название места', max_length=MAX_LENGTH_POST)
 
     class Meta:
         verbose_name = 'местоположение'
@@ -66,7 +65,7 @@ class Location(BaseModel):
 class Post(BaseModel):
     """Модель для сохраниния постов в блоге."""
 
-    title = models.CharField('Заголовок', max_length=MAX_LENGTH_CHAR_FIELD)
+    title = models.CharField('Заголовок', max_length=MAX_LENGTH_POST)
     text = models.TextField('Текст')
     pub_date = models.DateTimeField(
         'Дата и время публикации',
@@ -114,9 +113,11 @@ class Post(BaseModel):
 
 
 class Profile(models.Model):
-    first_name = models.CharField('Имя', max_length=20)
+    first_name = models.CharField('Имя', max_length=MAX_LENGTH_PROFILE)
     last_name = models.CharField(
-        'Фамилия', blank=True, help_text='Необязательное поле', max_length=20
+        'Фамилия', blank=True,
+        help_text='Необязательное поле',
+        max_length=MAX_LENGTH_PROFILE
     )
     author = models.ForeignKey(
         User, verbose_name='Автор записи', on_delete=models.CASCADE, null=True
@@ -132,14 +133,20 @@ class Profile(models.Model):
 
 
 class Comment(models.Model):
-    text = models.TextField('')
+    text = models.TextField('Текст комментария')
     post = models.ForeignKey(
         Post,
+        verbose_name='Пост',
         on_delete=models.CASCADE,
         related_name='comment',
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(
+        'Дата создания комментария', auto_now_add=True)
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор публикации',
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = 'комментарий'

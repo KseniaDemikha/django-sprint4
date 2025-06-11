@@ -1,18 +1,19 @@
-from .forms import PostForm, CommentForm
-from .models import Post, Category, Comment
-from .constants import NUMBER_OF_POSTS
-from django.utils import timezone
-from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import HttpResponseNotFound
 from django.shortcuts import get_object_or_404, render, redirect
+from django.utils import timezone
+from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     CreateView, DetailView, ListView, UpdateView, DeleteView
 )
+
+from .forms import PostForm, CommentForm
+from .models import Post, Category, Comment
+from .constants import NUMBER_OF_POSTS
+from .utils import paginate_page
 
 
 class OnlyAuthorMixin(LoginRequiredMixin):
@@ -81,9 +82,7 @@ def category_posts(request, category_slug):
         is_published=True,
         pub_date__lte=timezone.now()
     )
-    paginator = Paginator(post_list, NUMBER_OF_POSTS)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginate_page(request, post_list)
     context = {'page_obj': page_obj, 'category': category}
     return render(request, template, context)
 
